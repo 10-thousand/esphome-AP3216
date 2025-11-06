@@ -1,0 +1,98 @@
+esphome:
+  name: esphome-web-ebe1f0
+  friendly_name: ESPHome32
+  min_version: 2025.4.0
+external_components:
+  #- source:
+    #  type: local
+    #  path: components
+    #components: [ap3216]
+  - source: github://10-thousand/esphome-AP3216@main
+    components: [ap3216]
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+    
+# Enable Home Assistant API
+api:
+ota:
+- platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: HIGH
+
+web_server:
+  port: 80
+
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+
+sensor:
+  - platform: ap3216
+    mode: ALS_PS
+    operating_mode: VALUE_AND_INTERRUPT
+    interrupt_pin: GPIO13
+    int_clear_manner: CLR_INT_MANUALLY
+    interrupt_status: "status"
+    ambient_light: "Ambient light"
+    ps_counts: "Proximity"
+    infrared_counts: "Infrared"
+    ir_data: "Ir data"
+    is_near: "is_near"
+
+    lux_range: RANGE_20661
+    als_int_after_n_conversions: 6
+    ps_int_after_n_conversions: 2
+    als_calibration_factor: 1.0
+    ps_integration_time: 8
+    ps_gain: 2
+    ps_interrupt_mode: INT_MODE_ZONE
+    ps_mean_time: PS_MEAN_TIME_12_5
+    number_of_led_pulses: 1 
+    led_current: LED_66_7
+    led_waiting_time: 0
+    ps_calibration: 0
+    als_thresholds_lower: 0
+    als_thresholds_upper: 500
+    ps_thresholds_lower: 0
+    ps_thresholds_upper: 200
+
+    on_interrupt_trigger:
+       - if:
+          condition:
+            lambda: return x.interruptTypeString == "ALS_PS_INT";
+          then:
+            - logger.log: 
+                  level: INFO
+                  format: "als: %f, prox: %d, ir: %d, interruptTypeString: %s"
+                  args:
+                    - x.als
+                    - x.prox
+                    - x.ir
+                    - x.interruptTypeString.c_str()
+
+    on_ps_low_threshold:
+      then:
+        - logger.log: "Object is not near"
+    
+    on_ps_high_threshold:
+      then:
+        - logger.log: "Object is near"
+
+    on_ir_data_overflow:
+      then:
+        - logger.log: "ir data is overflowed"
+    
+    address: 0x23
+    update_interval: 60s
+
+
+logger:
+  level: VERBOSE
+  logs:
+    mqtt.component: DEBUG
+    mqtt.client: ERROR

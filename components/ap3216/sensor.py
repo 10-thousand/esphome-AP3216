@@ -264,16 +264,16 @@ CONFIG_SCHEMA = cv.All(
             
             cv.Optional(CONF_OPERATING_MODE, default="VALUE"): cv.enum(OPERATING_MODE_OPTIONS),
             cv.Optional(CONF_MODE, default="ALS_PS"): cv.enum(MODE_OPTIONS),
-            cv.Optional(CONF_INT_CLEAR_MANNER, default="CLR_INT_BY_DATA_READ"): cv.enum(INT_CLEAR_MANNER_OPTIONS),
+            cv.Optional(CONF_INT_CLEAR_MANNER): cv.enum(INT_CLEAR_MANNER_OPTIONS),
             cv.Optional(CONF_LUX_RANGE, default="RANGE_20661"): cv.enum(LUX_RANGE_OPTIONS),
-            cv.Optional(CONF_ALS_INT_AFTER_N_CONVERSIONS, default=1): cv.int_range(min=1, max=60),
+            cv.Optional(CONF_ALS_INT_AFTER_N_CONVERSIONS): cv.int_range(min=1, max=60),
             cv.Optional(CONF_ALS_CALIBRATION_FACTOR, default=1.0): cv.float_range(min=1.0, max=3.98),
             cv.Optional(CONF_PS_INTEGRATION_TIME, default=1): cv.int_range(min=1, max=16),
             cv.Optional(CONF_PS_GAIN, default=2): cv.one_of(1, 2, 4, 8, int=True),
-            cv.Optional(CONF_PS_INT_AFTER_N_CONVERSIONS, default=2): cv.one_of(1, 2, 4, 8, int=True),
+            cv.Optional(CONF_PS_INT_AFTER_N_CONVERSIONS): cv.one_of(1, 2, 4, 8, int=True),
             cv.Optional(CONF_NUMBER_OF_LED_PULSES, default=1): cv.int_range(min=0, max=3),
             cv.Optional(CONF_LED_CURRENT, default="LED_100"): cv.enum(LED_CURRENT_OPTIONS),
-            cv.Optional(CONF_PS_INTERRUPT_MODE, default="INT_MODE_ZONE"): cv.enum(PS_INTERRUPT_OPTIONS),
+            cv.Optional(CONF_PS_INTERRUPT_MODE): cv.enum(PS_INTERRUPT_OPTIONS),
             cv.Optional(CONF_PS_MEAN_TIME, default="PS_MEAN_TIME_12_5"): cv.enum(PS_MEAN_TIME_OPTIONS),
             cv.Optional(CONF_LED_WAITING_TIME, default=0): cv.int_range(min=0, max=63),
             cv.Optional(CONF_PS_CALIBRATION, default=0): cv.int_range(min=0, max=511),
@@ -337,16 +337,23 @@ async def to_code(config):
     
     cg.add(var.set_operating_mode(config[CONF_OPERATING_MODE]))    
     cg.add(var.set_mode(config[CONF_MODE]))
-    cg.add(var.set_int_clear_manner(config[CONF_INT_CLEAR_MANNER]))
+    if CONF_INT_CLEAR_MANNER in config:
+        cg.add(var.set_int_clear_manner(config[CONF_INT_CLEAR_MANNER]))
+    if CONF_ALS_INT_AFTER_N_CONVERSIONS in config:
+        cg.add(var.set_als_int_after_n_conversions(config[CONF_ALS_INT_AFTER_N_CONVERSIONS]))
+    if CONF_PS_INT_AFTER_N_CONVERSIONS in config:
+        cg.add(var.set_ps_int_after_n_conversions(config[CONF_PS_INT_AFTER_N_CONVERSIONS]))
+    if CONF_PS_INTERRUPT_MODE in config:
+        cg.add(var.set_ps_interrupt_mode(config[CONF_PS_INTERRUPT_MODE]))
+        
     cg.add(var.set_lux_range(config[CONF_LUX_RANGE]))
-    cg.add(var.set_als_int_after_n_conversions(config[CONF_ALS_INT_AFTER_N_CONVERSIONS]))
     cg.add(var.set_als_calibration_factor(config[CONF_ALS_CALIBRATION_FACTOR]))
     cg.add(var.set_ps_integration_time(config[CONF_PS_INTEGRATION_TIME]))
     cg.add(var.set_ps_gain(config[CONF_PS_GAIN]))
-    cg.add(var.set_ps_int_after_n_conversions(config[CONF_PS_INT_AFTER_N_CONVERSIONS]))
+    
     cg.add(var.set_number_of_led_pulses(config[CONF_NUMBER_OF_LED_PULSES]))
     cg.add(var.set_led_current(config[CONF_LED_CURRENT]))
-    cg.add(var.set_ps_interrupt_mode(config[CONF_PS_INTERRUPT_MODE]))
+    
     cg.add(var.set_ps_mean_time(config[CONF_PS_MEAN_TIME]))
     cg.add(var.set_led_waiting_time(config[CONF_LED_WAITING_TIME]))
     cg.add(var.set_ps_calibration(config[CONF_PS_CALIBRATION]))
@@ -356,8 +363,9 @@ async def to_code(config):
     
     if CONF_PS_THRESHOLDS_LOWER in config and CONF_PS_THRESHOLDS_UPPER in config:
         cg.add(var.set_ps_thresholds(config[CONF_PS_THRESHOLDS_LOWER], config[CONF_PS_THRESHOLDS_UPPER]))
-    interrupt_pin = await cg.gpio_pin_expression(config[CONF_INTERRUPT_PIN])
-    cg.add(var.set_interrupt_pin(interrupt_pin))
+    if CONF_INTERRUPT_PIN in config:
+        interrupt_pin = await cg.gpio_pin_expression(config[CONF_INTERRUPT_PIN])
+        cg.add(var.set_interrupt_pin(interrupt_pin))
     
     for conf in config.get(CONF_ON_INTERRUPT_TRIGGER, []):
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)

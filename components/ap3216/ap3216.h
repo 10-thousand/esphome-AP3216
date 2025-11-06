@@ -84,16 +84,16 @@ protected:
   
   uint8_t operating_mode;
   AP3216Mode _ap3216_mode;
-  uint8_t int_clear_manner;
+  uint8_t int_clear_manner = CLR_INT_BY_DATA_READ;
   AP3216LuxRange lux_range;
-  uint8_t als_int_after_n_conversions;
+  uint8_t als_int_after_n_conversions = 1;
   float als_calibration_factor;
   uint8_t ps_integration_time;
   uint8_t ps_gain;
-  uint8_t ps_int_after_n_conversions;
+  uint8_t ps_int_after_n_conversions = 2;
   uint8_t number_of_led_pulses;
   uint8_t led_current;
-  uint8_t ps_interrupt_mode;
+  uint8_t ps_interrupt_mode = INT_MODE_ZONE;
   uint8_t ps_mean_time;
   uint8_t led_waiting_time;
   uint16_t ps_calibration;
@@ -105,7 +105,7 @@ protected:
   
   static void blink();
   void interruptAction();
-};
+
 
 }  // namespace ap3216
 }  // namespace esphome
