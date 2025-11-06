@@ -106,6 +106,6 @@ protected:
   static void blink();
   void interruptAction();
 
-
+};
 }  // namespace ap3216
 }  // namespace esphome
