@@ -29,3 +29,5 @@ sensor:
     update_interval: 60s
 ```    
 You can see [minimal](https://github.com/10-thousand/esphome-AP3216/blob/main/minimal_example_ap3216.yaml) and [full](https://github.com/10-thousand/esphome-AP3216/blob/main/example_ap3216.yaml) example in this repo
+
+This project uses the [AP3216_WE](https://github.com/wollewald/AP3216_WE/tree/master) library.
