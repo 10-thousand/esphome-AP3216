@@ -1,7 +1,7 @@
 # ESPHome custom component for СJMCU-3216 (AP3216)
 ## 1. Connect AP3216 to a board (image for example)
    
-![](https://habrastorage.org/webt/iq/70/vz/iq70vzosz-15i4kd5i7wbacytjg.jpeg)
+![](https://github.com/10-thousand/esphome-AP3216/blob/main/scheme.jpg)
 
 ## 2. Include the external component in the yaml file:
 ```
